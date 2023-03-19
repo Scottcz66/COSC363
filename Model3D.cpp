@@ -18,7 +18,7 @@
 #include <GL/freeglut.h>
 using namespace std;
 int theta = -1;
-GLuint txId[1];
+GLuint txId[4];
 
 //--Globals ---------------------------------------------------------------
 float* x, * y, * z;					//vertex coordinates
@@ -70,6 +70,91 @@ void loadMeshFile(const char* fname)
 	fp_in.close();
 	cout << " File successfully read." << endl;
 }
+
+
+void loadTexture(void)
+{
+	glGenTextures(3, txId); 	// Create texture ids
+
+	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
+	loadBMP("ground.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
+	loadBMP("cat.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
+	loadBMP("back_photo.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
+	loadBMP("VaseTexture.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+}
+
+void normal(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
+{
+	float nx, ny, nz;
+	nx = y1 * (z2 - z3) + y2 * (z3 - z1) + y3 * (z1 - z2);
+	ny = z1 * (x2 - x3) + z2 * (x3 - x1) + z3 * (x1 - x2);
+	nz = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
+	glNormal3f(nx, ny, nz);
+}
+void drawBird()
+{
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, txId[3]);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0., 0.);
+	glVertex3f(-15, -4, 0);
+	glTexCoord2f(1., 0.);
+	glVertex3f(-35, -4, 0); //-0.1 so that the shadow can be seen clearly
+	glTexCoord2f(1., 1.);
+	glVertex3f(-35, 4, 0);
+	glTexCoord2f(0., 1.);
+	glVertex3f(-15, 4, 0);
+	
+	
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+	
+}
+
+void drawPhoto()
+{
+	glColor4f(1, 1, 1, 0.5);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, txId[2]);
+	glBegin(GL_QUADS);
+
+	glNormal3f(0, 1, 1);
+	glTexCoord2f(0.0, 0.0);
+	glVertex3f(0, 0, 0); //-0.1 so that the shadow can be seen clearly
+	glTexCoord2f(1, 0.0);
+	glVertex3f(5, 0, 0);
+	glTexCoord2f(1, 1);
+	glVertex3f(5, 5, 0);
+	glTexCoord2f(0.0, 1);
+	glVertex3f(0, 5, 0);
+
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+}
+
+
 
 
 void amsWindowTimer(int value)
@@ -127,80 +212,36 @@ void computeMinMax()
 		else if (y[i] > ymax) ymax = y[i];
 	}
 }
-//void drawModel()
-//{
-	//glColor3f(1.0, 1.0, 0.0);           //改颜色
-	//glPushMatrix();
-	//glTranslatef(-10, 5, 17);
-	//glScalef(80, 10, 6);
-	//glutSolidCube(1);
-	//glPopMatrix();
-//}
 
-//void drawFloor()
-//{
-	//glColor3f(0., 0., 0.); // Floor colour
-
-	//for (int i = -50; i <= 50; i++)
-	//{
-		//glBegin(GL_LINES); // A set of grid lines on the xz-plane
-		//glVertex3f(-50, -3, i);
-		//glVertex3f(50, -3, i);
-		//glVertex3f(i, -3, -50);
-		//glVertex3f(i, -3, 50);
-		//glEnd();
-	//}
-//}
 
 void drawFloor()
 {
-	float white[4] = { 1., 1., 1., 1. };
-	float black[4] = { 0 };
-
+	
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[0]);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBegin(GL_QUADS);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, black);
-	for (int i = -256; i < 256; i += 16)
-	{
-		for (int j = -256; j < 256; j += 16)
-		{
-			glTexCoord2f(0.0, 0.0);
-			glVertex3f(i, -18, j); //-0.1 so that the shadow can be seen clearly
-			glTexCoord2f(0.0, 1.0);
-			glVertex3f(i, -18, j + 16);
-			glTexCoord2f(1.0, 1.0);
-			glVertex3f(i + 16, -18, j + 16);
-			glTexCoord2f(1.0, 0.0);
-			glVertex3f(i + 16, -18, j);
-		}
-	}
+	
+	glTexCoord2f(0.0, 0.0);
+	glVertex3f(500, -10, 100); //-0.1 so that the shadow can be seen clearly
+	glTexCoord2f(4.0, 0.0);
+	glVertex3f(500, -10, -100);
+	glTexCoord2f(4.0, 4.0);
+	glVertex3f(-500, -10, -100);
+	glTexCoord2f(0.0, 4.0);
+	glVertex3f(-500, -10, 100);
+		
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, black);
 }
 
 
-void loadTexture(void)
-{
-	glGenTextures(1, txId); 	// Create texture ids
 
-	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
-	loadBMP("ground.bmp");
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-}
 
 
 
 
 //--Function to compute the normal vector of a triangle with index indx ----------
-void normal(int indx)
+void normaloff(int indx)
 {
 	float x1 = x[t1[indx]], x2 = x[t2[indx]], x3 = x[t3[indx]];
 	float y1 = y[t1[indx]], y2 = y[t2[indx]], y3 = y[t3[indx]];
@@ -211,6 +252,8 @@ void normal(int indx)
 	nz = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
 	glNormal3f(nx, ny, nz);
 }
+
+
 
 void playxx()
 {
@@ -228,7 +271,7 @@ void playxx()
 	{
 		if (indx <= 6) glColor3f(1., 1., 1.);
 		else glColor3f(0., 1., 1.);
-		normal(indx);
+		normaloff(indx);
 		if (nv[indx] == 3)	glBegin(GL_TRIANGLES);
 		else				glBegin(GL_QUADS);
 		glVertex3d(x[t1[indx]], y[t1[indx]], z[t1[indx]]);
@@ -248,9 +291,9 @@ void display()
 {
 
 	glEnable(GL_LIGHTING);
-
-	float lpos[4] = { 1., 1., 10, 1.0 };			//Front light's position
-	float lpos1[4] = { 1., 1., -10, 1.0 };			//Back light's position
+	glClearColor(0, 0, 0, 0);
+	float lpos[4] = { 0., 5., 10, 1.0 };			//Front light's position
+	float lpos1[4] = { 0., 5., -10, 1.0 };			//Back light's position
 	float lpos2[4] = { -1., 1., 0, 1.0 };
 
 	float white[4] = { 1, 1, 1, 1 };
@@ -258,7 +301,7 @@ void display()
 	float cyan[4] = { 0, 1, 1, 1 };
 	float black[4] = { 0, 0, 0, 1 };
 	float mat_diffuse[4] = { 1, 0, 0, 1 };
-	glClearColor(1, 1, 0, 0);
+	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);    //GL_LINE = Wireframe;   GL_FILL = Solid
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -267,10 +310,12 @@ void display()
 	gluLookAt(cam_hgt, 0, cam_dis, cam_hgt, 0, 0, 0, 1, 0);
 	//gluPerspective(30, 10, 10, 20);
 	glLightfv(GL_LIGHT0, GL_POSITION, lpos);	//set light position 
+	glLightfv(GL_LIGHT0, GL_AMBIENT, white);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, white);
 
 	glLightfv(GL_LIGHT1, GL_POSITION, lpos1);	//set back light position 
+	glLightfv(GL_LIGHT0, GL_AMBIENT, white);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, white);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, white);
 	glEnable(GL_LIGHT1);
@@ -278,10 +323,11 @@ void display()
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-	//glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
-
+	drawBird();
 	drawFloor();
+	
 	//drawModel();
 	D_model();
 
