@@ -17,7 +17,7 @@
 #include <math.h> 
 #include <GL/freeglut.h>
 using namespace std;
-//int theta = 0;
+int theta = -1;
 GLuint txId[1];
 
 //--Globals ---------------------------------------------------------------
@@ -26,8 +26,9 @@ int* nv, * t1, * t2, * t3, * t4;		//number of vertices and vertex indices of eac
 int nvert, nface;					//total number of vertices and faces
 float angleX = 0.0, angleY = -8;	//Rotation angles about x, y axes
 float xmin, xmax, ymin, ymax;		//min, max values of  object coordinates
-int cam_hgt = 0;
-
+int cam_hgt = 1;
+int cam_dis = -30;
+int direction = 0;
 
 
 //-- Loads mesh data in OFF format    -------------------------------------
@@ -80,6 +81,38 @@ void amsWindowTimer(int value)
 
 
 
+void D_model()     //create a 3D model
+{
+	glPushMatrix();
+	glTranslatef(6, -3, 0);
+	glRotatef(theta, 0, 1, 0);
+	glTranslatef(-6, 3, 0);
+	glRotatef(theta, 0, 0, 1);
+	glTranslatef(13, 0, 0);
+	glPopMatrix();
+
+
+
+	glPushMatrix();
+	glTranslatef(10, 4, 0);
+	glRotatef(theta, 1, 0, 0);
+	glTranslatef(-10, -4, 0);
+
+	glTranslatef(13, 0, 0);
+	glutSolidCube(1);
+	glPopMatrix();
+
+}
+
+void modelTimer(int value)
+{
+	glutPostRedisplay();
+	theta++;
+	if (theta >= 5) direction = 1;
+	else if (theta <= -5) direction = -1;
+	theta += direction;
+	glutTimerFunc(50, modelTimer, 0);
+}
 
 //-- Computes the min, max values of coordinates  -----------------------
 void computeMinMax()
@@ -127,26 +160,26 @@ void drawFloor()
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[0]);
 
-	//glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBegin(GL_QUADS);
-	//glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, black);
 	for (int i = -256; i < 256; i += 16)
 	{
 		for (int j = -256; j < 256; j += 16)
 		{
-			//glTexCoord2f(0.0, 0.0);
+			glTexCoord2f(0.0, 0.0);
 			glVertex3f(i, -18, j); //-0.1 so that the shadow can be seen clearly
-			//glTexCoord2f(0.0, 1.0);
+			glTexCoord2f(0.0, 1.0);
 			glVertex3f(i, -18, j + 16);
-			//glTexCoord2f(1.0, 1.0);
+			glTexCoord2f(1.0, 1.0);
 			glVertex3f(i + 16, -18, j + 16);
-			//glTexCoord2f(1.0, 0.0);
+			glTexCoord2f(1.0, 0.0);
 			glVertex3f(i + 16, -18, j);
 		}
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	//glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, black);
 }
 
 
@@ -160,7 +193,7 @@ void loadTexture(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	
+
 }
 
 
@@ -179,6 +212,34 @@ void normal(int indx)
 	glNormal3f(nx, ny, nz);
 }
 
+void playxx()
+{
+	glPushMatrix();
+
+	//float light1_pos[4] = { 21.21, 10, 21.21, 1 };
+	//float light1_dir[3] = { 0.5, -0.7071, 0.5 };
+	//glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
+	//glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1_dir);
+
+
+	glRotatef(angleX, 1.0, 0.0, 0.0);			//rotate the object about the x-axis
+	glRotatef(angleY, 0.0, 1.0, 0.0);			//rotate the object about the y-axis
+	for (int indx = 0; indx < nface; indx++)		//draw each face
+	{
+		if (indx <= 6) glColor3f(1., 1., 1.);
+		else glColor3f(0., 1., 1.);
+		normal(indx);
+		if (nv[indx] == 3)	glBegin(GL_TRIANGLES);
+		else				glBegin(GL_QUADS);
+		glVertex3d(x[t1[indx]], y[t1[indx]], z[t1[indx]]);
+		glVertex3d(x[t2[indx]], y[t2[indx]], z[t2[indx]]);
+		glVertex3d(x[t3[indx]], y[t3[indx]], z[t3[indx]]);
+		if (nv[indx] == 4)
+			glVertex3d(x[t4[indx]], y[t4[indx]], z[t4[indx]]);
+		glEnd();
+	}
+	glPopMatrix();
+}
 
 //--Display: ----------------------------------------------------------------------
 //--This is the main display module containing function calls for generating
@@ -203,7 +264,8 @@ void display()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(cam_hgt, 0, 20, 0, 0, 0, 0, 1, 0);
+	gluLookAt(cam_hgt, 0, cam_dis, cam_hgt, 0, 0, 0, 1, 0);
+	//gluPerspective(30, 10, 10, 20);
 	glLightfv(GL_LIGHT0, GL_POSITION, lpos);	//set light position 
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, white);
@@ -214,35 +276,23 @@ void display()
 	glEnable(GL_LIGHT1);
 
 
-	
-
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
 
 	drawFloor();
 	//drawModel();
+	D_model();
 
-	glRotatef(angleX, 1.0, 0.0, 0.0);			//rotate the object about the x-axis
-	glRotatef(angleY, 0.0, 1.0, 0.0);			//rotate the object about the y-axis
 
-	
 
-	for (int indx = 0; indx < nface; indx++)		//draw each face
-	{
-		if (indx <= 6) glColor3f(1., 1., 1.);
-		else glColor3f(0., 1., 1.);
-		normal(indx);
-		if (nv[indx] == 3)	glBegin(GL_TRIANGLES);
-		else				glBegin(GL_QUADS);
-		glVertex3d(x[t1[indx]], y[t1[indx]], z[t1[indx]]);
-		glVertex3d(x[t2[indx]], y[t2[indx]], z[t2[indx]]);
-		glVertex3d(x[t3[indx]], y[t3[indx]], z[t3[indx]]);
-		if (nv[indx] == 4)
-			glVertex3d(x[t4[indx]], y[t4[indx]], z[t4[indx]]);
-		glEnd();
-	}
+
+	//glRotatef(cam_hgt, 0.0, 1.0, 0.0);		//rotate the whole scene
+
+
+	playxx();
+
 
 	glFlush();
 }
@@ -251,6 +301,7 @@ void display()
 void initialize()
 {
 	float model_wid, model_hgt;
+	//float white[] = { 1, 1, 1, 1 };
 	loadMeshFile("Octahedron.off");			//Specify mesh file name here
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);	//Background colour
 
@@ -260,6 +311,11 @@ void initialize()
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
+
+	//glEnable(GL_LIGHT1);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, white);   //light1
+	//glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 40);
+	//glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 10); //See slides [03]:24-26
 
 	computeMinMax();						    //Compute min, max values of x, y coordinates for defining camera frustum
 	model_wid = xmax - xmin;						//Model width and height
@@ -279,14 +335,14 @@ void special(int key, int x, int y)
 {
 	//int theta = 0;
 	//if (theta >= 0) theta++; angleX++;
-	if (key == GLUT_KEY_LEFT) angleY--;
-	else if (key == GLUT_KEY_RIGHT) angleY++;
-	else if (key == GLUT_KEY_UP) angleX--;
-	else if (key == GLUT_KEY_DOWN) angleX++;
+	if (key == GLUT_KEY_LEFT) cam_hgt++;
+	else if (key == GLUT_KEY_RIGHT) cam_hgt--;
+	else if (key == GLUT_KEY_UP) cam_dis++;
+	else if (key == GLUT_KEY_DOWN) cam_dis--;
 
-	 //if (theta >= 0) {
-		//angleX++;
-	//}
+	//if (theta >= 0) {
+	   //angleX++;
+   //}
 	glutPostRedisplay();
 }
 
@@ -295,11 +351,13 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_DEPTH);
-	glutInitWindowSize(600, 600);
+	glutInitWindowSize(800, 800);
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Model3D");
 	initialize();
+
 	glutTimerFunc(50, amsWindowTimer, 0);
+	glutTimerFunc(50, modelTimer, 0);
 	glutDisplayFunc(display);
 	glutSpecialFunc(special);
 	glutMainLoop();
