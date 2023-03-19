@@ -74,7 +74,7 @@ void loadMeshFile(const char* fname)
 
 void loadTexture(void)
 {
-	glGenTextures(3, txId); 	// Create texture ids
+	glGenTextures(4, txId); 	// Create texture ids
 
 	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
 	loadBMP("ground.bmp");
@@ -82,9 +82,10 @@ void loadTexture(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
-	loadBMP("cat.bmp");
+	loadBMP("run_cat.bmp");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
 
 	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
 	loadBMP("back_photo.bmp");
@@ -113,16 +114,17 @@ void drawBird()
 {
 	
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, txId[3]);
+	glColor3f(1, 1, 0);
+	glBindTexture(GL_TEXTURE_2D, txId[1]);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0., 0.);
-	glVertex3f(-15, -4, 0);
-	glTexCoord2f(1., 0.);
-	glVertex3f(-35, -4, 0); //-0.1 so that the shadow can be seen clearly
-	glTexCoord2f(1., 1.);
-	glVertex3f(-35, 4, 0);
-	glTexCoord2f(0., 1.);
-	glVertex3f(-15, 4, 0);
+		glTexCoord2f(0., 0.);
+		glVertex3f(-15, -4, 0);
+		glTexCoord2f(1., 0.);
+		glVertex3f(-35, -4, 0); //-0.1 so that the shadow can be seen clearly
+		glTexCoord2f(1., 1.);
+		glVertex3f(-35, 4, 0);
+		glTexCoord2f(0., 1.);
+		glVertex3f(-15, 4, 0);
 	
 	
 
