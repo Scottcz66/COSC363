@@ -19,6 +19,7 @@
 using namespace std;
 int theta = -1;
 GLuint txId[4];
+GLuint texture;
 
 //--Globals ---------------------------------------------------------------
 float* x, * y, * z;					//vertex coordinates
@@ -82,10 +83,10 @@ void loadTexture(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
-	loadBMP("run_cat.bmp");
+	loadBMP("runCat.bmp");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+
 
 	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
 	loadBMP("back_photo.bmp");
@@ -93,7 +94,7 @@ void loadTexture(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
-	loadBMP("VaseTexture.bmp");
+	loadBMP("runCat.bmp");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -110,48 +111,50 @@ void normal(float x1, float y1, float z1, float x2, float y2, float z2, float x3
 	nz = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
 	glNormal3f(nx, ny, nz);
 }
-void drawBird()
+void drawCat()
 {
-	
+
 	glEnable(GL_TEXTURE_2D);
-	glColor3f(1, 1, 0);
+	//glColor4f(0, 0, 0, 0.3);
 	glBindTexture(GL_TEXTURE_2D, txId[1]);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0., 0.);
-		glVertex3f(-15, -4, 0);
-		glTexCoord2f(1., 0.);
-		glVertex3f(-35, -4, 0); //-0.1 so that the shadow can be seen clearly
-		glTexCoord2f(1., 1.);
-		glVertex3f(-35, 4, 0);
-		glTexCoord2f(0., 1.);
-		glVertex3f(-15, 4, 0);
-	
-	
+	glTexCoord2f(0., 0.);
+	glVertex3f(-15, -4, 15);
+	glTexCoord2f(1., 0.);
+	glVertex3f(-35, -4, 15); //-0.1 so that the shadow can be seen clearly
+	glTexCoord2f(1., 1.);
+	glVertex3f(-35, 4, 15);
+	glTexCoord2f(0., 1.);
+	glVertex3f(-15, 4, 15);
+
+
 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	
+
 }
 
-void drawPhoto()
+void drawPhoto()        //front photo to make scanimation, op aplha = 0.5
 {
-	glColor4f(1, 1, 1, 0.5);
+	glColor4f(1, 1, 1, 0.5);    //alpha = 0.5
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);   //"enable"  allow to use aplha 
+	
 	glBindTexture(GL_TEXTURE_2D, txId[2]);
 	glBegin(GL_QUADS);
 
-	glNormal3f(0, 1, 1);
-	glTexCoord2f(0.0, 0.0);
-	glVertex3f(0, 0, 0); //-0.1 so that the shadow can be seen clearly
-	glTexCoord2f(1, 0.0);
-	glVertex3f(5, 0, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(5, 5, 0);
-	glTexCoord2f(0.0, 1);
-	glVertex3f(0, 5, 0);
+	glTexCoord2f(0., 0.);
+	glVertex3f(-25, -4, 14);
+	glTexCoord2f(1., 0.);
+	glVertex3f(-45, -4, 14); //-0.1 so that the shadow can be seen clearly
+	glTexCoord2f(1., 1.);
+	glVertex3f(-45, 4, 14);
+	glTexCoord2f(0., 1.);
+	glVertex3f(-25, 4, 14);
 
 
 	glEnd();
+	glDisable(GL_BLEND);    //"Disable"     also need to use glBlendFunc()
 	glDisable(GL_TEXTURE_2D);
 
 }
@@ -171,6 +174,7 @@ void amsWindowTimer(int value)
 void D_model()     //create a 3D model
 {
 	glPushMatrix();
+	glColor4f(0, 1, 1, 0.5);
 	glTranslatef(6, -3, 0);
 	glRotatef(theta, 0, 1, 0);
 	glTranslatef(-6, 3, 0);
@@ -218,11 +222,11 @@ void computeMinMax()
 
 void drawFloor()
 {
-	
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[0]);
 	glBegin(GL_QUADS);
-	
+
 	glTexCoord2f(0.0, 0.0);
 	glVertex3f(500, -10, 100); //-0.1 so that the shadow can be seen clearly
 	glTexCoord2f(4.0, 0.0);
@@ -231,7 +235,7 @@ void drawFloor()
 	glVertex3f(-500, -10, -100);
 	glTexCoord2f(0.0, 4.0);
 	glVertex3f(-500, -10, 100);
-		
+
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }
@@ -294,8 +298,8 @@ void display()
 
 	glEnable(GL_LIGHTING);
 	glClearColor(0, 0, 0, 0);
-	float lpos[4] = { 0., 5., 10, 1.0 };			//Front light's position
-	float lpos1[4] = { 0., 5., -10, 1.0 };			//Back light's position
+	float lpos[4] = { 35., 5., 10, 1.0 };			//Front light's position
+	float lpos1[4] = { 35., 5., -10, 1.0 };			//Back light's position
 	float lpos2[4] = { -1., 1., 0, 1.0 };
 
 	float white[4] = { 1, 1, 1, 1 };
@@ -303,7 +307,7 @@ void display()
 	float cyan[4] = { 0, 1, 1, 1 };
 	float black[4] = { 0, 0, 0, 1 };
 	float mat_diffuse[4] = { 1, 0, 0, 1 };
-	
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);    //GL_LINE = Wireframe;   GL_FILL = Solid
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -327,9 +331,10 @@ void display()
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
-	drawBird();
+	drawCat();
+	drawPhoto();
 	drawFloor();
-	
+
 	//drawModel();
 	D_model();
 
@@ -353,12 +358,21 @@ void initialize()
 	loadMeshFile("Octahedron.off");			//Specify mesh file name here
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);	//Background colour
 
+
 	loadTexture();
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
 	glEnable(GL_LIGHT0);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
+
+	//glEnable(GL_BLEND);
+	
+	//drawPhoto();
+	//glDisable(GL_BLEND);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    //Opacity 
+
 
 	//glEnable(GL_LIGHT1);
 	//glLightfv(GL_LIGHT1, GL_DIFFUSE, white);   //light1
@@ -398,6 +412,7 @@ void special(int key, int x, int y)
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_DEPTH);
 	glutInitWindowSize(800, 800);
 	glutInitWindowPosition(10, 10);
