@@ -128,7 +128,7 @@ void drawCat()
 	glVertex3f(-15, 4, 15);
 
 
-
+	 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
