@@ -14,6 +14,7 @@
 #include <fstream> 
 #include <climits>
 #include "loadBMP.h"
+#include "loadTGA.h"
 #include <math.h> 
 #include <GL/freeglut.h>
 using namespace std;
@@ -30,7 +31,8 @@ float xmin, xmax, ymin, ymax;		//min, max values of  object coordinates
 int cam_hgt = 1;
 int cam_dis = -30;
 int direction = 0;
-
+float backX = 1;
+int backY = 3;
 
 //-- Loads mesh data in OFF format    -------------------------------------
 void loadMeshFile(const char* fname)
@@ -77,24 +79,24 @@ void loadTexture(void)
 {
 	glGenTextures(4, txId); 	// Create texture ids
 
-	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
-	loadBMP("ground.bmp");
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
+	//loadBMP("ground.bmp");
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
-	loadBMP("runCat.bmp");
+	loadTGA("Stars.tga");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
-	loadBMP("back_photo.bmp");
+	loadTGA("orange.tga");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
-	loadBMP("runCat.bmp");
+	loadBMP("run_cat.bmp");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -113,49 +115,59 @@ void normal(float x1, float y1, float z1, float x2, float y2, float z2, float x3
 }
 void drawCat()
 {
-
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_TEXTURE_2D,0);
 	glEnable(GL_TEXTURE_2D);
-	//glColor4f(0, 0, 0, 0.3);
-	glBindTexture(GL_TEXTURE_2D, txId[1]);
+	glBindTexture(GL_TEXTURE_2D, txId[2]);
+	
 	glBegin(GL_QUADS);
-	glTexCoord2f(0., 0.);
-	glVertex3f(-15, -4, 15);
+	glTexCoord2f(0., 0.8);
+	glVertex3f(-10, -4, 15);
 	glTexCoord2f(1., 0.);
-	glVertex3f(-35, -4, 15); //-0.1 so that the shadow can be seen clearly
+	glVertex3f(-18, -4, 15); //-0.1 so that the shadow can be seen clearly
 	glTexCoord2f(1., 1.);
-	glVertex3f(-35, 4, 15);
+	glVertex3f(-18, 4, 15);
 	glTexCoord2f(0., 1.);
-	glVertex3f(-15, 4, 15);
+	glVertex3f(-10, 4, 15);
 
 
-	 
+
 	glEnd();
+	
 	glDisable(GL_TEXTURE_2D);
-
+	glDisable(GL_ALPHA_TEST);
 }
 
 void drawPhoto()        //front photo to make scanimation, op aplha = 0.5
 {
-	glColor4f(1, 1, 1, 0.5);    //alpha = 0.5
+	glPushMatrix();
+	glTranslatef(-14, 0, +14);
+	glRotatef(backX, 0, 0, 1);
+	glTranslatef(14, 0, -14);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_TEXTURE_2D, 0.8);
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);   //"enable"  allow to use aplha 
 	
+	//glTranslatef(-backX, 0, 0);
 	glBindTexture(GL_TEXTURE_2D, txId[2]);
 	glBegin(GL_QUADS);
-
+	
+	
 	glTexCoord2f(0., 0.);
-	glVertex3f(-25, -4, 14);
+	glVertex3f(-10, -4, 14);
 	glTexCoord2f(1., 0.);
-	glVertex3f(-45, -4, 14); //-0.1 so that the shadow can be seen clearly
+	glVertex3f(-18, -4, 14); //-0.1 so that the shadow can be seen clearly
 	glTexCoord2f(1., 1.);
-	glVertex3f(-45, 4, 14);
+	glVertex3f(-18, 4, 14);
 	glTexCoord2f(0., 1.);
-	glVertex3f(-25, 4, 14);
+	glVertex3f(-10, 4, 14);
 
 
 	glEnd();
-	glDisable(GL_BLEND);    //"Disable"     also need to use glBlendFunc()
+	
 	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glPopMatrix();
 
 }
 
@@ -166,6 +178,9 @@ void amsWindowTimer(int value)
 {
 	glutPostRedisplay();
 	angleY++;
+	backX++;
+	//if (backX >= 10) backX--;
+	//else if (backX <= -30) backX++;
 	glutTimerFunc(50, amsWindowTimer, 0);
 }
 
@@ -333,7 +348,7 @@ void display()
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100);
 	drawCat();
 	drawPhoto();
-	drawFloor();
+	//drawFloor();
 
 	//drawModel();
 	D_model();
@@ -367,7 +382,7 @@ void initialize()
 	glEnable(GL_NORMALIZE);
 
 	//glEnable(GL_BLEND);
-	
+
 	//drawPhoto();
 	//glDisable(GL_BLEND);
 
