@@ -19,7 +19,7 @@
 #include <GL/freeglut.h>
 using namespace std;
 int theta = -1;
-GLuint txId[4];
+GLuint txId[5];
 GLuint texture;
 GLUquadric *q;
 
@@ -29,7 +29,7 @@ int* nv, * t1, * t2, * t3, * t4;		//number of vertices and vertex indices of eac
 int nvert, nface;					//total number of vertices and faces
 float angleX = 0.0, angleY = -8;	//Rotation angles about x, y axes
 float xmin, xmax, ymin, ymax;		//min, max values of  object coordinates
-float cam_hgt = 1;
+float cam_hgt = 0;
 int cam_dis = -30;
 int direction = 0;
 int backX = 0;
@@ -42,6 +42,16 @@ float dCount = 1;
 
 float hMove = 0;
 float hCount = 1;
+
+float  xEye = 0,  yEye = 25,  zEye = -80;
+float l_x = 0, l_y = 25, l_z = 100;
+int moveCount = 0;
+float s = 1;
+float d = 2;
+
+
+
+
 
 float lpos2[4] = {20,90,10,1};
 
@@ -88,7 +98,7 @@ void loadMeshFile(const char* fname)
 
 void loadTexture(void)
 {
-    glGenTextures(4, txId); 	// Create texture ids
+    glGenTextures(5, txId); 	// Create texture ids
 
     glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
     loadBMP("floor.bmp");
@@ -109,6 +119,11 @@ void loadTexture(void)
 
     glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
     loadBMP("Roof.bmp");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindTexture(GL_TEXTURE_2D, txId[4]);  //Use this texture
+    loadBMP("newfloor.bmp");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	//Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -340,7 +355,7 @@ void drawHuman()
          glTranslatef(3, 6.5 ,0);
          glRotatef(-hMove, 1, 0, 0);
          glTranslatef(-3, -6.5, 0);
-         glTranslatef(16.8, -7.3, -0.5);
+         glTranslatef(16.8, -7.3, 0.3);
          glScalef(1, 4, 1);
          glutSolidCube(1);
     glPopMatrix();
@@ -350,7 +365,7 @@ void drawHuman()
          glTranslatef(-0.8,4,0);
          glRotatef(hMove, 1, 0, 0);
          glTranslatef(0.8, -4, 0);
-         glTranslatef(15.3, -7.3, -0.5);
+         glTranslatef(15.3, -7.3, 0.3);
          glScalef(1, 4, 1);
          glutSolidCube(1);
     glPopMatrix();
@@ -358,7 +373,7 @@ void drawHuman()
 
     glColor3f(0., 0., 1.);			//Left arm
     glPushMatrix();
-         glTranslatef(18.5, -2, 1);
+         glTranslatef(18.5, -2.7, 0);
          glRotatef(-25, 1, 0, 0);
          glRotatef(145, 0, 0, 1);
 
@@ -373,7 +388,7 @@ void drawHuman()
 
     glColor3f(0., 0., 1.);			//Left arm
     glPushMatrix();
-         glTranslatef(13.5, -2, 1);
+         glTranslatef(13.5, -2.7, 0);
          glRotatef(-25, 1, 0, 0);
          glRotatef(-145, 0, 0, 1);
          glScalef(1, 3, 1);
@@ -381,39 +396,20 @@ void drawHuman()
     glPopMatrix();
 
 
+    glColor3f(0.0, 0.0, 0.0);
+    glPushMatrix();
+       glTranslatef(16.4, -1.3, -1);
+       glutSolidSphere(0.1, 16, 16);
+    glPopMatrix();
 
-    float light[] = {10, 10, 0, 1};
-    float shadowMat[16] = { 10,0,0,0, -10,0,-0,-1,
-                            0,0,10,0, 0,0,0,10 };
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
-    //float shadowMat[16] = {lpos2[1],0,0,0,-lpos2[0],0,-lpos2[2],-1,0,0,lpos2[1],0,0,0,0,lpos2[1]};
-
-    //glEnable(GL_LIGHTING);
-    //glColor3f(1, 0, 1);
-    //glPushMatrix();
-      //glTranslatef(0, 3, 0);
-      //glRotatef(30, 1, 0, 0);
-      //glRotatef(60, 0, 1, 0);
-      //glColor3f(1, 0, 1);
-      //glutSolidTeapot(1);
-    //glPopMatrix();
+    glColor3f(0.0, 0.0, 0.0);
+    glPushMatrix();
+       glTranslatef(15.4, -1.3, -1);
+       glutSolidSphere(0.1, 16, 16);
+    glPopMatrix();
 
 
-    //glDisable(GL_LIGHTING);
-    //glPushMatrix();
-   //Draw Shadow Object
-       //glMultMatrixf(shadowMat);
-  // Transformations
-       //glTranslatef(0, 3, 0);
-       //glRotatef(30, 1, 0, 0);
-       //glRotatef(30*2, 0, 1, 0);
-       //glColor4f(0.2, 0.2, 0.2, 1.0);
-       //glutSolidTeapot(1);
-   //glPopMatrix();
+
 
 
 }
@@ -430,10 +426,10 @@ void modelTimer(int value)
     else if (theta <= -5) direction = -1;
     theta += direction;
 
-    if (hMove==6){
+    if (hMove==4){
           hCount=-1;
     }
-    if (hMove==-6){
+    if (hMove==-4){
           hCount=1;
     }
     hMove+=hCount;
@@ -457,21 +453,22 @@ void computeMinMax()
 }
 
 
+
 void drawFloor()
 {
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, txId[0]);
+    glBindTexture(GL_TEXTURE_2D, txId[4]);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0, 0.0);
-    glVertex3f(60, -10, 50); //-0.1 so that the shadow can be seen clearly
+    glVertex3f(60, -10, 80); //-0.1 so that the shadow can be seen clearly
     glTexCoord2f(1.0, 0.0);
-    glVertex3f(60, -10, -50);
+    glVertex3f(60, -10, -80);
     glTexCoord2f(1.0, 6.0);
-    glVertex3f(-60, -10, -50);
+    glVertex3f(-60, -10, -80);
     glTexCoord2f(0.0, 6.0);
-    glVertex3f(-60, -10, 50);
+    glVertex3f(-60, -10, 80);
 
     glEnd();
     glDisable(GL_TEXTURE_2D);
@@ -481,7 +478,7 @@ void drawFloor()
 void drawBackGround()
 {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, txId[0]);
+    glBindTexture(GL_TEXTURE_2D, txId[2]);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0, 0.0);
@@ -501,7 +498,7 @@ void drawBackGround()
 void drawRoof()
 {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, txId[0]);
+    glBindTexture(GL_TEXTURE_2D, txId[4]);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0, 0.0);
@@ -521,16 +518,16 @@ void drawRoof()
 void drawLeftWall()
 {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, txId[0]);
+    glBindTexture(GL_TEXTURE_2D, txId[4]);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0, 0.0);
     glVertex3f(60, 10, 80); //-0.1 so that the shadow can be seen clearly
     glTexCoord2f(1.0, 0.0);
     glVertex3f(60, 10, -80);
-    glTexCoord2f(1.0, 6.0);
+    glTexCoord2f(1.0, 4.0);
     glVertex3f(60, -10, -80);
-    glTexCoord2f(0.0, 6.0);
+    glTexCoord2f(0.0, 2.0);
     glVertex3f(60, -10, 80);
 
     glEnd();
@@ -541,16 +538,16 @@ void drawLeftWall()
 void drawRightWall()
 {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, txId[0]);
+    glBindTexture(GL_TEXTURE_2D, txId[4]);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0, 0.0);
     glVertex3f(-60, 10, 80); //-0.1 so that the shadow can be seen clearly
     glTexCoord2f(1.0, 0.0);
     glVertex3f(-60, 10, -80);
-    glTexCoord2f(1.0, 6.0);
+    glTexCoord2f(1.0, 4.0);
     glVertex3f(-60, -10, -80);
-    glTexCoord2f(0.0, 6.0);
+    glTexCoord2f(0.0, 2.0);
     glVertex3f(-60, -10, 80);
 
     glEnd();
@@ -578,7 +575,24 @@ void drawFrontWall()
 
 
 
+void drawEntry()
+{
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, txId[4]);
+    glBegin(GL_QUADS);
 
+    glTexCoord2f(0.0, 0.0);
+    glVertex3f(60, -10, 80); //-0.1 so that the shadow can be seen clearly
+    glTexCoord2f(1.0, 0.0);
+    glVertex3f(-60, -10, 80);
+    glTexCoord2f(1.0, 6.0);
+    glVertex3f(-60, -10, -80);
+    glTexCoord2f(0.0, 6.0);
+    glVertex3f(60, -10, -80);
+
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+}
 
 
 
@@ -634,8 +648,9 @@ void display()
 
     glEnable(GL_LIGHTING);
     glClearColor(1, 1, 1, 1);
-    float lpos[4] = {cam_hgt, 0, 10, 1.0 };			//Front light's position
-    float lpos1[4] = { cam_hgt, 0, -10, 1.0 };			//Back light's position
+            //Front light's position
+    float lpos[4] = {xEye , 0, zEye, 1.0 };
+    float lpos1[4] = { 0, 0, -10, 1.0 };			//Back light's position
     float lpos2[4] = { -1., 1., 0, 1.0 };
 
     float white[4] = { 1, 1, 1, 1 };
@@ -644,16 +659,32 @@ void display()
     float black[4] = { 0, 0, 0, 1 };
     float mat_diffuse[4] = { 1, 0, 0, 1 };
 
-
-
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);    //GL_LINE = Wireframe;   GL_FILL = Solid
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    gluLookAt(cam_hgt, 0, cam_dis, cam_hgt, 0, 0, 0, 1, 0);
+    float XaxisDir = sin(cam_hgt), ZaxisDir = cos(cam_hgt);
+        xEye += moveCount * s * XaxisDir;
+        zEye += moveCount * s * ZaxisDir;
+        moveCount = 0;
+        //if (xEye >= 45){           //avoid cross the line.
+            //xEye = 45;
+        //} else if (xEye <= -45){
+            //xEye = -45;
+        //}
+        //if (zEye >= -42){
+            //zEye = -42;
+        //} else if (zEye <= -100){
+            //zEye =-100;
+        //}
+        l_x = xEye + d * XaxisDir;
+        l_z = zEye + d * ZaxisDir;
+     gluLookAt(xEye, 0, zEye, l_x, 0, l_z, 0, 1, 0);
+
+    //gluLookAt(cam_hgt, 0, cam_dis, cam_hgt, 0, 0, 0, 1, 0);
     //gluPerspective(30, 10, 10, 20);
     glLightfv(GL_LIGHT0, GL_POSITION, lpos);	//set light position
     glLightfv(GL_LIGHT0, GL_AMBIENT, white);
@@ -674,7 +705,7 @@ void display()
     drawCat();
     drawPhoto();
     drawFloor();
-
+    //drawEntry();
 
     //drawModel();
     torusModel();
@@ -742,18 +773,19 @@ void initialize()
 // To enable the use of left and right arrow keys to rotate the scene
 void special(int key, int x, int y)
 {
-    //int theta = 0;
-    //if (theta >= 0) theta++; angleX++;
-    if (key == GLUT_KEY_LEFT) cam_hgt++;
-    else if (key == GLUT_KEY_RIGHT) cam_hgt--;
-    else if (key == GLUT_KEY_UP) cam_dis++;
-    else if (key == GLUT_KEY_DOWN) cam_dis--;
-
-
-    //if (theta >= 0) {
-       //angleX++;
-   //}
-    glutPostRedisplay();
+    if(key == GLUT_KEY_LEFT) {
+            cam_hgt += 0.02;
+        }
+        else if(key == GLUT_KEY_RIGHT) {
+            cam_hgt -= 0.02;
+        }
+        else if (key == GLUT_KEY_UP) {
+            moveCount = 1;
+        }
+        else if (key == GLUT_KEY_DOWN) {
+            moveCount = -1;
+        }
+     glutPostRedisplay();
 }
 
 
@@ -761,10 +793,10 @@ void keyBoard(unsigned char key, int x, int y)
 {
     switch(key)
     {
-    case '1': cam_hgt = 1; break; //turn left
-    case '2': cam_hgt = 17; break; //turn right
-    case '3': cam_hgt = -17; break; //move forward
-    case '0': cam_hgt = 0; break; //move backward
+    case '1': cam_hgt = 0; xEye = 2; yEye = -5; zEye = -20; break; //turn left
+    case '2': cam_hgt = 0; xEye = 17.5; zEye = -32;break; //turn right
+    case '3': cam_hgt = 0; xEye = -18; zEye = -30;break; //move forward
+    case '0': cam_hgt = 0; xEye = 0; zEye = -80;break; //move backward
     }
     glutPostRedisplay(); //update display
 
@@ -784,10 +816,11 @@ int main(int argc, char** argv)
     glutCreateWindow("Model3D");
     initialize();
 
-    glutKeyboardFunc(keyBoard);
+
 
     glutTimerFunc(50, amsWindowTimer, 0);
     glutTimerFunc(50, modelTimer, 0);
+    glutKeyboardFunc(keyBoard);
     glutDisplayFunc(display);
     glutSpecialFunc(special);
     glutMainLoop();
