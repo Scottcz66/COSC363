@@ -25,29 +25,8 @@ float Cylinder::intersect(glm::vec3 p0, glm::vec3 dir)
     if(t1 < 0.01) t1 = -1;
     if(t2 < 0.01) t2 = -1;
 
-    //if (t1 > t2) {
-        //sT = t2;
-        //bT = t1;
-    //} else {
-        //sT = t1;
-        //bT = t2;
-    //}
-
-
     float ypos = p0.y + dir.y * t1;
     float ypos1 = p0.y + dir.y * t2;
-    //if (ypos > (center.y + h ) && ypos1 > center.y + h) {return -1;}
-        //else if (ypos < center.y && ypos1 < center.y) {return -1;}
-       // else if (ypos > center.y + h && ypos1 < center.y + h){
-            //return (center.y + h - p0.y) / dir.y;  //with cap t2;
-        //}else if (ypos1 > center.y + h && ypos < center.y + h)
-        //{
-            //return (center.y + h - p0.y) / dir.y; //with cap t1;
-        //}else if (t1 < 0) { return (t2 > 0) ? t2 : -1;}
-        //else return t1;
-
-
-
 
     if (ypos > center.y + h  && ypos1 > center.y + h) {
         return -1;
@@ -62,19 +41,6 @@ float Cylinder::intersect(glm::vec3 p0, glm::vec3 dir)
         return (t2 > 0) ? t2 : -1;
     }
         else return t1;
-
-    //float ypos = p0.y + dir.y*t1;
-    //float ypos1 = p0.y + dir.y*t2;
-    //if((ypos > center.y + h && ypos1 <= center.y + h)){
-        //return (center.y + h - p0.y) / dir.y;;
-    //} else if((ypos1 > center.y + h && ypos < center.y + h)){
-        //return (center.y + h - p0.y);
-
-    //}else if (t1 < 0) { return (t2 > 0) ? t2 : -1;}
-    //else if (ypos > (center.y + h ) && ypos1 > center.y + h) {return -1;}
-    //else if (ypos < center.y && ypos1 < center.y) {return -1;}
-
-
 
 
 }
